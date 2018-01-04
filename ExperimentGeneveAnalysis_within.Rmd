@@ -1,0 +1,81 @@
+---
+title: "CoReader"
+author: "Elmira Yadollahi"
+date: "21/12/2017"
+output:
+  html_document: default
+  pdf_document: default
+editor_options:
+  chunk_output_type: console
+---
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see .
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+options(width=90)
+knitr::opts_chunk$set(comment = "", warning = FALSE, message = FALSE, echo = TRUE, tidy = TRUE, size="small")
+```
+
+# Loading Data
+Let's load data. The first step is to read a CSV file into a dataframe, which is the data structure used by R to store data.
+
+```{r echo=FALSE, results='hide', message=FALSE}
+
+# Uncomment and run if these packages are not installed yet.
+# install.packages("gdata")
+# install.packages("gplots")
+
+library(gdata) # reorder
+library(gplots) # plotmeans
+library(ggfortify) # regression diagnostics
+library(plyr) # ddply
+
+```
+
+
+```{r echo=TRUE}
+# TODO: Adapt the path to your own installation
+# Set the working directory
+setwd("/home/yadollah/Dropbox/2.PhD/Experiment_Geneve/Analysis/Categorizaton/")
+
+# Read a csv file (header = T signals that the first line of the file contains the names of the variables)
+# the <- operator assigns the result of read.csv to the variable moocs 
+# moocs is a dataframe, similar to an excel worksheet.
+
+# Open day 1 data for within subject study
+D1 <- read.csv(file="all_correction_status_within.csv", header = T)
+
+
+
+# Open day 2 data for within subject study
+
+D2 <- read.csv(file="all_correction_status_Day2_within.csv", header = T)
+
+
+```
+
+
+```{r}
+# prints the first rows of the dataframe. Useful to check if the import has worked. We see that there are many missing values signaled by "NA" == Not Available
+head(D1)
+head(D2)
+```
+
+
+```{r}
+# Treat the data
+
+
+```
+
+
+
+
+
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.

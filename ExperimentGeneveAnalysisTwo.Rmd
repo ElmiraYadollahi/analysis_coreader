@@ -1,0 +1,725 @@
+---
+title: "CoReader"
+author: "Elmira Yadollahi"
+date: "21/12/2017"
+output:
+  html_document: default
+  pdf_document: default
+editor_options:
+  chunk_output_type: console
+---
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see .
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+options(width=90)
+knitr::opts_chunk$set(comment = "", warning = FALSE, message = FALSE, echo = TRUE, tidy = TRUE, size="small")
+```
+
+# Loading Data
+Let's load data. The first step is to read a CSV file into a dataframe, which is the data structure used by R to store data.
+
+```{r echo=FALSE, results='hide', message=FALSE}
+
+# Uncomment and run if these packages are not installed yet.
+# install.packages("gdata")
+# install.packages("gplots")
+
+library(gdata) # reorder
+library(gplots) # plotmeans
+library(ggfortify) # regression diagnostics
+library(plyr) # ddply
+
+```
+
+
+```{r echo=TRUE}
+# TODO: Adapt the path to your own installation
+# Set the working directory
+setwd("/home/yadollah/Dropbox/2.PhD/Experiment_Geneve/Analysis/Categorizaton/")
+
+# Read a csv file (header = T signals that the first line of the file contains the names of the variables)
+# the <- operator assigns the result of read.csv to the variable moocs 
+# moocs is a dataframe, similar to an excel worksheet.
+
+# Open day 1 data
+D1H <- read.csv(file="all_High_correction_status_clean.csv", header = T)
+D1L <- read.csv(file="all_Low_correction_status_clean.csv", header = T)
+D1 <- rbind(D1H, D1L)
+
+
+# Open day 2 data
+
+D2H <- read.csv(file="all_High_correction_status_Day2_clean.csv", header = T)
+D2L <- read.csv(file="all_Low_correction_status_Day2_clean.csv", header = T)
+D2 <- rbind(D2H, D2L)
+
+
+```
+
+
+```{r}
+# prints the first rows of the dataframe. Useful to check if the import has worked. We see that there are many missing values signaled by "NA" == Not Available, namely for variables starting with MOOC_ ... this is because these students never logged in the MOOC.
+head(D1H)
+head(D1L)
+```
+
+
+```{r}
+# prints the first rows of the dataframe. Useful to check if the import has worked. We see that there are many missing values signaled by "NA" == Not Available, namely for variables starting with MOOC_ ... this is because these students never logged in the MOOC.
+head(D1H)
+head(D1L)
+```
+
+
+You can also embed plots, for example:
+
+```{r, echo=FALSE}
+ggplot(D1H, aes(x=Robot_Hand_Condition, fill=Correction_Status)) + geom_bar(position=position_dodge(), stat="count")+
+geom_text(stat='count',position=position_dodge(1), aes(label=..count..),vjust=-0.5)+
+labs(title="High Level - Day 1")
+
+
+ggplot(D1L, aes(x=Robot_Hand_Condition, fill=Correction_Status)) + geom_bar(position=position_dodge(), stat="count")+
+geom_text(stat='count',position=position_dodge(1), aes(label=..count..),vjust=-0.5)+
+labs(title="Low Level - Day 1")
+
+ggplot(D1, aes(x=Robot_Hand_Condition, fill=Correction_Status)) + geom_bar(position=position_dodge(), stat="count")+
+geom_text(stat='count',position=position_dodge(1), aes(label=..count..),vjust=-0.5)+
+labs(title="both Levels - Day 1")
+
+
+ggplot(D2H, aes(x=Robot_Hand_Condition, fill=Correction_Status)) + geom_bar(position=position_dodge(), stat="count")+
+geom_text(stat='count',position=position_dodge(1), aes(label=..count..),vjust=-0.5)+
+labs(title="High Level - Day 2")
+
+
+ggplot(D2L, aes(x=Robot_Hand_Condition, fill=Correction_Status)) + geom_bar(position=position_dodge(), stat="count")+
+geom_text(stat='count',position=position_dodge(1), aes(label=..count..),vjust=-0.5)+
+labs(title="Low Level - Day 2")
+
+ggplot(D1, aes(x=Robot_Hand_Condition, fill=Correction_Status)) + geom_bar(position=position_dodge(), stat="count")+
+geom_text(stat='count',position=position_dodge(1), aes(label=..count..),vjust=-0.5)+
+labs(title="both Levels - Day 2")
+
+
+```
+
+```{r, echo=FALSE}
+ggplot(D1H, aes(x=Correction_Status, fill=Robot_Hand_Condition)) + geom_bar(position=position_dodge(), stat="count")+
+geom_text(stat='count',position=position_dodge(1), aes(label=..count..),vjust=-0.5)+
+  labs(title="High Level - Day 1")
+
+
+ggplot(D1L, aes(x=Correction_Status, fill=Robot_Hand_Condition)) + geom_bar(position=position_dodge(), stat="count")+
+geom_text(stat='count',position=position_dodge(1), aes(label=..count..),vjust=-0.5)+
+labs(title="Low Level - Day 1")
+
+ggplot(D1, aes(x=Correction_Status, fill=Robot_Hand_Condition)) + geom_bar(position=position_dodge(), stat="count")+
+geom_text(stat='count',position=position_dodge(1), aes(label=..count..),vjust=-0.5)+
+labs(title="both Levels - Day 1")
+
+
+ggplot(D2H, aes(x=Correction_Status, fill=Robot_Hand_Condition)) + geom_bar(position=position_dodge(), stat="count")+
+geom_text(stat='count',position=position_dodge(1), aes(label=..count..),vjust=-0.5)+
+  labs(title="High Level - Day 2")
+
+
+ggplot(D2L, aes(x=Correction_Status, fill=Robot_Hand_Condition)) + geom_bar(position=position_dodge(), stat="count")+
+geom_text(stat='count',position=position_dodge(1), aes(label=..count..),vjust=-0.5)+
+labs(title="Low Level - Day 2")
+
+ggplot(D1, aes(x=Correction_Status, fill=Robot_Hand_Condition)) + geom_bar(position=position_dodge(), stat="count")+
+geom_text(stat='count',position=position_dodge(1), aes(label=..count..),vjust=-0.5)+
+labs(title="both Levels - Day 2")
+
+```
+
+
+
+
+
+```{r, echo=FALSE}
+ggplot(D1H, aes(x=Robot_Hand_Condition, fill=Correction_Status)) + geom_bar(position=position_dodge(), stat="count") + facet_grid(.~Mistake_Type)+
+geom_text(stat='count',position=position_dodge(1), aes(label=..count..),vjust=-0.5)+
+  labs(title="High Level - Day 1")
+
+ggplot(D2H, aes(x=Robot_Hand_Condition, fill=Correction_Status)) + geom_bar(position=position_dodge(), stat="count") + facet_grid(.~Mistake_Type)+
+geom_text(stat='count',position=position_dodge(1), aes(label=..count..),vjust=-0.5)+
+  labs(title="High Level - Day 2")
+
+```
+
+```{r, echo=FALSE}
+
+D1H_pointing = subset(D1H, D1H$Robot_Hand_Condition %in% c("Pointing"), na.rm=T)
+D1H_not = subset(D1H, D1H$Robot_Hand_Condition %in% c("Not_Pointing"), na.rm=T)
+
+P_total <- sum(D1H$Robot_Hand_Condition == "Pointing")
+NP_total <- sum(na.omit(D1H$Robot_Hand_Condition == "Not_Pointing"))
+P_C <- sum(na.omit(D1H_pointing$Correction_Status == "Corrected"))
+P_NC <- sum(na.omit(D1H_pointing$Correction_Status == "Not_Corrected"))
+NP_C <- sum(na.omit(D1H_not$Correction_Status == "Corrected"))
+NP_NC <- sum(na.omit(D1H_not$Correction_Status == "Not_Corrected"))
+
+Percentage_data<-( 
+  rbind(
+    c(P_C/P_total, P_NC/P_total), 
+    c(NP_C/NP_total, NP_NC/NP_total)
+  )
+)
+
+Percentage_data
+
+condition = c("with_pointing", "with_pointing", "without_pointing", "without_pointing") 
+percentage = c(round((P_C/P_total)*100,digits=2), 
+               round((P_NC/P_total)*100,digits=2),
+               round((NP_C/NP_total)*100,digits=2),
+               round((NP_NC/NP_total)*100, digits=2) )
+
+correction = c("2corrected", "1not_corrected", "2corrected", "1not_corrected") 
+df = data.frame(condition, percentage, correction) 
+df
+
+ggplot(df, aes(x=condition, y=percentage, fill=correction)) +
+    geom_bar(stat="identity", width = 0.6)+
+    geom_text(aes(label=percentage), size = 5, position="stack", vjust=2, color="white") +
+    labs(title="High Level day 1",
+      x = "Robot's Hand Condition", y="Percentage")+
+    theme(plot.title = element_text( face="bold", size=20),
+        plot.subtitle = element_text( face="plain", size=18), legend.position="bottom",
+        axis.text.x = element_text(colour="grey20",size=16,hjust=.5,vjust=.5,face="plain"),
+        axis.text.y = element_text(colour="grey20",size=16,angle=0,hjust=1,vjust=0,face="plain"),  
+        axis.title.x = element_text(colour="grey20",size=18,angle=0,hjust=.5,vjust=0,face="bold"),
+        axis.title.y = element_text(colour="grey20",size=18,angle=90,hjust=.5,vjust=.5,face="bold"),
+        legend.title = element_text(colour="grey20",size=16,angle=0,hjust=.5,vjust=.5,face="bold"),
+        legend.text = element_text(colour="grey20",size=16,angle=0,hjust=.5,vjust=.5,face="plain"))+
+  scale_fill_manual("Robot Hand Condition", values = c("red4", "springgreen4"), 
+                    labels=c("Not Corrected", "Corrected"))+
+  scale_x_discrete(labels=c("Without Pointing", "With Pointing"))
+
+
+
+
+D1H <- D2H
+
+D1H_pointing = subset(D1H, D1H$Robot_Hand_Condition %in% c("Pointing"), na.rm=T)
+D1H_not = subset(D1H, D1H$Robot_Hand_Condition %in% c("Not_Pointing"), na.rm=T)
+
+P_total <- sum(D1H$Robot_Hand_Condition == "Pointing")
+NP_total <- sum(na.omit(D1H$Robot_Hand_Condition == "Not_Pointing"))
+P_C <- sum(na.omit(D1H_pointing$Correction_Status == "Corrected"))
+P_NC <- sum(na.omit(D1H_pointing$Correction_Status == "Not_Corrected"))
+NP_C <- sum(na.omit(D1H_not$Correction_Status == "Corrected"))
+NP_NC <- sum(na.omit(D1H_not$Correction_Status == "Not_Corrected"))
+
+Percentage_data<-( 
+  rbind(
+    c(P_C/P_total, P_NC/P_total), 
+    c(NP_C/NP_total, NP_NC/NP_total)
+  )
+)
+
+Percentage_data
+
+condition = c("with_pointing", "with_pointing", "without_pointing", "without_pointing") 
+percentage = c(round((P_C/P_total)*100,digits=2), 
+               round((P_NC/P_total)*100,digits=2),
+               round((NP_C/NP_total)*100,digits=2),
+               round((NP_NC/NP_total)*100, digits=2) )
+
+correction = c("2corrected", "1not_corrected", "2corrected", "1not_corrected") 
+df = data.frame(condition, percentage, correction) 
+df
+
+ggplot(df, aes(x=condition, y=percentage, fill=correction)) +
+    geom_bar(stat="identity", width = 0.6)+
+    geom_text(aes(label=percentage), size = 5, position="stack", vjust=2, color="white") +
+    labs(title="High Level day 2",
+      x = "Robot's Hand Condition", y="Percentage")+
+    theme(plot.title = element_text( face="bold", size=20),
+        plot.subtitle = element_text( face="plain", size=18), legend.position="bottom",
+        axis.text.x = element_text(colour="grey20",size=16,hjust=.5,vjust=.5,face="plain"),
+        axis.text.y = element_text(colour="grey20",size=16,angle=0,hjust=1,vjust=0,face="plain"),  
+        axis.title.x = element_text(colour="grey20",size=18,angle=0,hjust=.5,vjust=0,face="bold"),
+        axis.title.y = element_text(colour="grey20",size=18,angle=90,hjust=.5,vjust=.5,face="bold"),
+        legend.title = element_text(colour="grey20",size=16,angle=0,hjust=.5,vjust=.5,face="bold"),
+        legend.text = element_text(colour="grey20",size=16,angle=0,hjust=.5,vjust=.5,face="plain"))+
+  scale_fill_manual("Robot Hand Condition", values = c("red4", "springgreen4"), 
+                    labels=c("Not Corrected", "Corrected"))+
+  scale_x_discrete(labels=c("Without Pointing", "With Pointing"))
+
+```
+
+
+```{r, echo=FALSE}
+D1L_pointing = subset(D1L, D1L$Robot_Hand_Condition %in% c("Pointing") )
+D1L_not = subset(D1L, D1L$Robot_Hand_Condition %in% c("Not_Pointing"))
+
+P_total <- sum(D1L$Robot_Hand_Condition == "Pointing")
+NP_total <- sum(na.omit(D1L$Robot_Hand_Condition == "Not_Pointing"))
+P_C <- sum(na.omit(D1L_pointing$Correction_Status == "Corrected"))
+P_NC <- sum(na.omit(D1L_pointing$Correction_Status == "Not_Corrected"))
+NP_C <- sum(na.omit(D1L_not$Correction_Status == "Corrected"))
+NP_NC <- sum(na.omit(D1L_not$Correction_Status == "Not_Corrected"))
+
+Percentage_data<-( 
+  rbind(
+    c(P_C/P_total, P_NC/P_total), 
+    c(NP_C/NP_total, NP_NC/NP_total)
+  )
+)
+
+Percentage_data
+
+condition = c("with_pointing", "with_pointing", "without_pointing", "without_pointing") 
+percentage = c(round((P_C/P_total)*100,digits=2), 
+               round((P_NC/P_total)*100,digits=2),
+               round((NP_C/NP_total)*100,digits=2),
+               round((NP_NC/NP_total)*100, digits=2) )
+
+correction = c("2corrected", "1not_corrected", "2corrected", "1not_corrected") 
+df = data.frame(condition, percentage, correction) 
+df
+
+ggplot(df, aes(x=condition, y=percentage, fill=correction)) +
+    geom_bar(stat="identity", width = 0.6)+
+    geom_text(aes(label=percentage), size = 5, position="stack", vjust=2, color="white") +
+    labs(title="Low Level Day 1",
+      x = "Robot's Hand Condition", y="Percentage")+
+    theme(plot.title = element_text( face="bold", size=20),
+        plot.subtitle = element_text( face="plain", size=18), legend.position="bottom",
+        axis.text.x = element_text(colour="grey20",size=16,hjust=.5,vjust=.5,face="plain"),
+        axis.text.y = element_text(colour="grey20",size=16,angle=0,hjust=1,vjust=0,face="plain"),  
+        axis.title.x = element_text(colour="grey20",size=18,angle=0,hjust=.5,vjust=0,face="bold"),
+        axis.title.y = element_text(colour="grey20",size=18,angle=90,hjust=.5,vjust=.5,face="bold"),
+        legend.title = element_text(colour="grey20",size=16,angle=0,hjust=.5,vjust=.5,face="bold"),
+        legend.text = element_text(colour="grey20",size=16,angle=0,hjust=.5,vjust=.5,face="plain"))+
+  scale_fill_manual("Robot Hand Condition", values = c("red4", "springgreen4"), 
+                    labels=c("Not Corrected", "Corrected"))+
+  scale_x_discrete(labels=c("Without Pointing", "With Pointing"))
+
+
+D1L <- D2L
+D1L_pointing = subset(D1L, D1L$Robot_Hand_Condition %in% c("Pointing") )
+D1L_not = subset(D1L, D1L$Robot_Hand_Condition %in% c("Not_Pointing"))
+
+P_total <- sum(D1L$Robot_Hand_Condition == "Pointing")
+NP_total <- sum(na.omit(D1L$Robot_Hand_Condition == "Not_Pointing"))
+P_C <- sum(na.omit(D1L_pointing$Correction_Status == "Corrected"))
+P_NC <- sum(na.omit(D1L_pointing$Correction_Status == "Not_Corrected"))
+NP_C <- sum(na.omit(D1L_not$Correction_Status == "Corrected"))
+NP_NC <- sum(na.omit(D1L_not$Correction_Status == "Not_Corrected"))
+
+Percentage_data<-( 
+  rbind(
+    c(P_C/P_total, P_NC/P_total), 
+    c(NP_C/NP_total, NP_NC/NP_total)
+  )
+)
+
+Percentage_data
+
+condition = c("with_pointing", "with_pointing", "without_pointing", "without_pointing") 
+percentage = c(round((P_C/P_total)*100,digits=2), 
+               round((P_NC/P_total)*100,digits=2),
+               round((NP_C/NP_total)*100,digits=2),
+               round((NP_NC/NP_total)*100, digits=2) )
+
+correction = c("2corrected", "1not_corrected", "2corrected", "1not_corrected") 
+df = data.frame(condition, percentage, correction) 
+df
+
+ggplot(df, aes(x=condition, y=percentage, fill=correction)) +
+    geom_bar(stat="identity", width = 0.6)+
+    geom_text(aes(label=percentage), size = 5, position="stack", vjust=2, color="white") +
+    labs(title="Low Level Day 2",
+      x = "Robot's Hand Condition", y="Percentage")+
+    theme(plot.title = element_text( face="bold", size=20),
+        plot.subtitle = element_text( face="plain", size=18), legend.position="bottom",
+        axis.text.x = element_text(colour="grey20",size=16,hjust=.5,vjust=.5,face="plain"),
+        axis.text.y = element_text(colour="grey20",size=16,angle=0,hjust=1,vjust=0,face="plain"),  
+        axis.title.x = element_text(colour="grey20",size=18,angle=0,hjust=.5,vjust=0,face="bold"),
+        axis.title.y = element_text(colour="grey20",size=18,angle=90,hjust=.5,vjust=.5,face="bold"),
+        legend.title = element_text(colour="grey20",size=16,angle=0,hjust=.5,vjust=.5,face="bold"),
+        legend.text = element_text(colour="grey20",size=16,angle=0,hjust=.5,vjust=.5,face="plain"))+
+  scale_fill_manual("Robot Hand Condition", values = c("red4", "springgreen4"), 
+                    labels=c("Not Corrected", "Corrected"))+
+  scale_x_discrete(labels=c("Without Pointing", "With Pointing"))
+
+
+```
+
+
+
+
+```{r, echo=FALSE}
+D1_pointing = subset(D1, D1$Robot_Hand_Condition %in% c("Pointing") )
+D1_not = subset(D1, D1$Robot_Hand_Condition %in% c("Not_Pointing"))
+
+P_total <- sum(D1$Robot_Hand_Condition == "Pointing")
+NP_total <- sum(na.omit(D1$Robot_Hand_Condition == "Not_Pointing"))
+P_C <- sum(na.omit(D1_pointing$Correction_Status == "Corrected"))
+P_NC <- sum(na.omit(D1_pointing$Correction_Status == "Not_Corrected"))
+NP_C <- sum(na.omit(D1_not$Correction_Status == "Corrected"))
+NP_NC <- sum(na.omit(D1_not$Correction_Status == "Not_Corrected"))
+
+Percentage_data<-( 
+  rbind(
+    c(P_C/P_total, P_NC/P_total), 
+    c(NP_C/NP_total, NP_NC/NP_total)
+  )
+)
+
+Percentage_data
+
+condition = c("with_pointing", "with_pointing", "without_pointing", "without_pointing") 
+percentage = c(round((P_C/P_total)*100,digits=2), 
+               round((P_NC/P_total)*100,digits=2),
+               round((NP_C/NP_total)*100,digits=2),
+               round((NP_NC/NP_total)*100, digits=2) )
+
+correction = c("2corrected", "1not_corrected", "2corrected", "1not_corrected") 
+df = data.frame(condition, percentage, correction) 
+df
+
+ggplot(df, aes(x=condition, y=percentage, fill=correction)) +
+    geom_bar(stat="identity", width = 0.6)+
+    geom_text(aes(label=percentage), size = 5, position="stack", vjust=2, color="white") +
+    labs(title="both Levels Day 1",
+      x = "Robot's Hand Condition", y="Percentage")+
+    theme(plot.title = element_text( face="bold", size=20),
+        plot.subtitle = element_text( face="plain", size=18), legend.position="bottom",
+        axis.text.x = element_text(colour="grey20",size=16,hjust=.5,vjust=.5,face="plain"),
+        axis.text.y = element_text(colour="grey20",size=16,angle=0,hjust=1,vjust=0,face="plain"),  
+        axis.title.x = element_text(colour="grey20",size=18,angle=0,hjust=.5,vjust=0,face="bold"),
+        axis.title.y = element_text(colour="grey20",size=18,angle=90,hjust=.5,vjust=.5,face="bold"),
+        legend.title = element_text(colour="grey20",size=16,angle=0,hjust=.5,vjust=.5,face="bold"),
+        legend.text = element_text(colour="grey20",size=16,angle=0,hjust=.5,vjust=.5,face="plain"))+
+  scale_fill_manual("Robot Hand Condition", values = c("red4", "springgreen4"), 
+                    labels=c("Not Corrected", "Corrected"))+
+  scale_x_discrete(labels=c("Without Pointing", "With Pointing"))
+
+
+D1 <- D2
+
+D1_pointing = subset(D1, D1$Robot_Hand_Condition %in% c("Pointing") )
+D1_not = subset(D1, D1$Robot_Hand_Condition %in% c("Not_Pointing"))
+
+P_total <- sum(D1$Robot_Hand_Condition == "Pointing")
+NP_total <- sum(na.omit(D1$Robot_Hand_Condition == "Not_Pointing"))
+P_C <- sum(na.omit(D1_pointing$Correction_Status == "Corrected"))
+P_NC <- sum(na.omit(D1_pointing$Correction_Status == "Not_Corrected"))
+NP_C <- sum(na.omit(D1_not$Correction_Status == "Corrected"))
+NP_NC <- sum(na.omit(D1_not$Correction_Status == "Not_Corrected"))
+
+Percentage_data<-( 
+  rbind(
+    c(P_C/P_total, P_NC/P_total), 
+    c(NP_C/NP_total, NP_NC/NP_total)
+  )
+)
+
+Percentage_data
+
+condition = c("with_pointing", "with_pointing", "without_pointing", "without_pointing") 
+percentage = c(round((P_C/P_total)*100,digits=2), 
+               round((P_NC/P_total)*100,digits=2),
+               round((NP_C/NP_total)*100,digits=2),
+               round((NP_NC/NP_total)*100, digits=2) )
+
+correction = c("2corrected", "1not_corrected", "2corrected", "1not_corrected") 
+df = data.frame(condition, percentage, correction) 
+df
+
+ggplot(df, aes(x=condition, y=percentage, fill=correction)) +
+    geom_bar(stat="identity", width = 0.6)+
+    geom_text(aes(label=percentage), size = 5, position="stack", vjust=2, color="white") +
+    labs(title="both Levels Day 2",
+      x = "Robot's Hand Condition", y="Percentage")+
+    theme(plot.title = element_text( face="bold", size=20),
+        plot.subtitle = element_text( face="plain", size=18), legend.position="bottom",
+        axis.text.x = element_text(colour="grey20",size=16,hjust=.5,vjust=.5,face="plain"),
+        axis.text.y = element_text(colour="grey20",size=16,angle=0,hjust=1,vjust=0,face="plain"),  
+        axis.title.x = element_text(colour="grey20",size=18,angle=0,hjust=.5,vjust=0,face="bold"),
+        axis.title.y = element_text(colour="grey20",size=18,angle=90,hjust=.5,vjust=.5,face="bold"),
+        legend.title = element_text(colour="grey20",size=16,angle=0,hjust=.5,vjust=.5,face="bold"),
+        legend.text = element_text(colour="grey20",size=16,angle=0,hjust=.5,vjust=.5,face="plain"))+
+  scale_fill_manual("Robot Hand Condition", values = c("red4", "springgreen4"), 
+                    labels=c("Not Corrected", "Corrected"))+
+  scale_x_discrete(labels=c("Without Pointing", "With Pointing"))
+
+```
+
+
+```{r, echo=FALSE}
+
+D1_pointing = subset(D1, D1$Robot_Hand_Condition %in% c("Pointing") )
+D1_not = subset(D1, D1$Robot_Hand_Condition %in% c("Not_Pointing"))
+D1_T1 <- subset(D1, D1_melt$Mistake_Type %in% c("T1"))
+D1_T2 <- subset(D1, D1_melt$Mistake_Type %in% c("T2"))
+D1_T3 <- subset(D1, D1_melt$Mistake_Type %in% c("T3"))
+D1_T4 <- subset(D1, D1_melt$Mistake_Type %in% c("T4"))
+
+
+
+P_T1_total <- subset(D1_T1, D1_T1$Robot_Hand_Condition == "Pointing")
+NP_T1_total <- subset(D1_T1, na.omit(D1_T1$Robot_Hand_Condition == "Not_Pointing"))
+P_T2_total <- subset(D1_T2, D1_T2$Robot_Hand_Condition == "Pointing")
+NP_T2_total <- subset(D1_T2, na.omit(D1_T2$Robot_Hand_Condition == "Not_Pointing"))
+P_T3_total <- subset(D1_T3, D1_T3$Robot_Hand_Condition == "Pointing")
+NP_T3_total <- subset(D1_T3, na.omit(D1_T3$Robot_Hand_Condition == "Not_Pointing"))
+P_T4_total <- subset(D1_T4, D1_T4$Robot_Hand_Condition == "Pointing")
+NP_T4_total <- subset(D1_T4, na.omit(D1_T4$Robot_Hand_Condition == "Not_Pointing"))
+
+P_C <- sum(na.omit(D1_pointing$Correction_Status == "Corrected"))
+P_NC <- sum(na.omit(D1_pointing$Correction_Status == "Not_Corrected"))
+NP_C <- sum(na.omit(D1_not$Correction_Status == "Corrected"))
+NP_NC <- sum(na.omit(D1_not$Correction_Status == "Not_Corrected"))
+
+Percentage_data<-( 
+  rbind(
+    c(P_C/P_total, P_NC/P_total), 
+    c(NP_C/NP_total, NP_NC/NP_total)
+  )
+)
+
+mistake = c("T1", "T1", "T1", "T1", "T2", "T2", "T2", "T2", "T3", "T3", "T3", "T3", "T4", "T4", "T4", "T4") 
+
+condition = c("with_pointing", "with_pointing", "without_pointing", "without_pointing",
+              "with_pointing", "with_pointing", "without_pointing", "without_pointing",
+              "with_pointing", "with_pointing", "without_pointing", "without_pointing",
+              "with_pointing", "with_pointing", "without_pointing", "without_pointing") 
+
+percentage = c(
+round((sum(na.omit(P_T1_total$Correction_Status == "Corrected"))/sum(D1_T1$Robot_Hand_Condition == "Pointing"))*100,digits=2), 
+               round((sum(na.omit(P_T1_total$Correction_Status == "Not_Corrected"))/sum(D1_T1$Robot_Hand_Condition == "Pointing"))*100,digits=2),
+               round((sum(na.omit(NP_T1_total$Correction_Status == "Corrected"))/sum(D1_T1$Robot_Hand_Condition == "Not_Pointing"))*100,digits=2),
+               round((sum(na.omit(NP_T1_total$Correction_Status == "Not_Corrected"))/sum(D1_T1$Robot_Hand_Condition == "Not_Pointing"))*100, digits=2),
+round((sum(na.omit(P_T2_total$Correction_Status == "Corrected"))/sum(D1_T2$Robot_Hand_Condition == "Pointing"))*100,digits=2), 
+               round((sum(na.omit(P_T2_total$Correction_Status == "Not_Corrected"))/sum(D1_T2$Robot_Hand_Condition == "Pointing"))*100,digits=2),
+               round((sum(na.omit(NP_T2_total$Correction_Status == "Corrected"))/sum(D1_T2$Robot_Hand_Condition == "Not_Pointing"))*100,digits=2),
+               round((sum(na.omit(NP_T2_total$Correction_Status == "Not_Corrected"))/sum(D1_T2$Robot_Hand_Condition == "Not_Pointing"))*100, digits=2),
+round((sum(na.omit(P_T3_total$Correction_Status == "Corrected"))/sum(D1_T3$Robot_Hand_Condition == "Pointing"))*100,digits=2), 
+               round((sum(na.omit(P_T3_total$Correction_Status == "Not_Corrected"))/sum(D1_T3$Robot_Hand_Condition == "Pointing"))*100,digits=2),
+               round((sum(na.omit(NP_T3_total$Correction_Status == "Corrected"))/sum(D1_T3$Robot_Hand_Condition == "Not_Pointing"))*100,digits=2),
+               round((sum(na.omit(NP_T3_total$Correction_Status == "Not_Corrected"))/sum(D1_T3$Robot_Hand_Condition == "Not_Pointing"))*100, digits=2),
+round((sum(na.omit(P_T4_total$Correction_Status == "Corrected"))/sum(D1_T4$Robot_Hand_Condition == "Pointing"))*100,digits=2), 
+               round((sum(na.omit(P_T4_total$Correction_Status == "Not_Corrected"))/sum(D1_T4$Robot_Hand_Condition == "Pointing"))*100,digits=2),
+               round((sum(na.omit(NP_T4_total$Correction_Status == "Corrected"))/sum(D1_T4$Robot_Hand_Condition == "Not_Pointing"))*100,digits=2),
+               round((sum(na.omit(NP_T4_total$Correction_Status == "Not_Corrected"))/sum(D1_T4$Robot_Hand_Condition == "Not_Pointing"))*100, digits=2))
+
+correction = c("2corrected", "1not_corrected", "2corrected", "1not_corrected",
+               "2corrected", "1not_corrected", "2corrected", "1not_corrected",
+               "2corrected", "1not_corrected", "2corrected", "1not_corrected",
+               "2corrected", "1not_corrected", "2corrected", "1not_corrected")
+
+dataf = data.frame(condition, percentage, correction, mistake) 
+dataf
+
+
+ggplot(dataf, aes(x=condition, y=percentage, fill=correction)) +
+  geom_bar(stat="identity", width = 0.7)+
+  geom_text(aes(label=percentage), size = 5, position="stack", vjust=2, color="white") +
+  labs(title="Both Levels Day 1",
+       x = "Robot's Hand Condition", y="Percentage")+
+  theme(plot.title = element_text( face="bold", size=20),
+        plot.subtitle = element_text( face="plain", size=18), legend.position="bottom",
+        axis.text.x = element_text(colour="grey20",size=16,hjust=.5,vjust=.5,face="plain"),
+        axis.text.y = element_text(colour="grey20",size=16,angle=0,hjust=1,vjust=0,face="plain"),  
+        axis.title.x = element_text(colour="grey20",size=18,angle=0,hjust=.5,vjust=0,face="bold"),
+        axis.title.y = element_text(colour="grey20",size=18,angle=90,hjust=.5,vjust=.5,face="bold"),
+        legend.title = element_text(colour="grey20",size=16,angle=0,hjust=.5,vjust=.5,face="bold"),
+        legend.text = element_text(colour="grey20",size=16,angle=0,hjust=.5,vjust=.5,face="plain"),
+        strip.text.x = element_text(size = 14, face="bold"))+
+        facet_wrap( ~ mistake)+
+        scale_fill_manual("Robot Hand Condition", values = c("red4", "springgreen4"), 
+                          labels=c("Not Corrected", "Corrected"))+
+        scale_x_discrete(labels=c("Without Pointing", "With Pointing"))
+
+
+```
+
+
+```{r, echo=FALSE}
+D1_pointing = subset(D1H, D1H$Robot_Hand_Condition %in% c("Pointing") )
+D1_not = subset(D1H, D1H$Robot_Hand_Condition %in% c("Not_Pointing"))
+D1_T1 <- subset(D1, D1_melt$Mistake_Type %in% c("T1"))
+D1_T2 <- subset(D1, D1_melt$Mistake_Type %in% c("T2"))
+D1_T3 <- subset(D1, D1_melt$Mistake_Type %in% c("T3"))
+D1_T4 <- subset(D1, D1_melt$Mistake_Type %in% c("T4"))
+
+
+
+P_T1_total <- subset(D1_T1, D1_T1$Robot_Hand_Condition == "Pointing")
+NP_T1_total <- subset(D1_T1, na.omit(D1_T1$Robot_Hand_Condition == "Not_Pointing"))
+P_T2_total <- subset(D1_T2, D1_T2$Robot_Hand_Condition == "Pointing")
+NP_T2_total <- subset(D1_T2, na.omit(D1_T2$Robot_Hand_Condition == "Not_Pointing"))
+P_T3_total <- subset(D1_T3, D1_T3$Robot_Hand_Condition == "Pointing")
+NP_T3_total <- subset(D1_T3, na.omit(D1_T3$Robot_Hand_Condition == "Not_Pointing"))
+P_T4_total <- subset(D1_T4, D1_T4$Robot_Hand_Condition == "Pointing")
+NP_T4_total <- subset(D1_T4, na.omit(D1_T4$Robot_Hand_Condition == "Not_Pointing"))
+
+P_C <- sum(na.omit(D1_pointing$Correction_Status == "Corrected"))
+P_NC <- sum(na.omit(D1_pointing$Correction_Status == "Not_Corrected"))
+NP_C <- sum(na.omit(D1_not$Correction_Status == "Corrected"))
+NP_NC <- sum(na.omit(D1_not$Correction_Status == "Not_Corrected"))
+
+Percentage_data<-( 
+  rbind(
+    c(P_C/P_total, P_NC/P_total), 
+    c(NP_C/NP_total, NP_NC/NP_total)
+  )
+)
+
+mistake = c("T1", "T1", "T1", "T1", "T2", "T2", "T2", "T2", "T3", "T3", "T3", "T3", "T4", "T4", "T4", "T4") 
+
+condition = c("with_pointing", "with_pointing", "without_pointing", "without_pointing",
+              "with_pointing", "with_pointing", "without_pointing", "without_pointing",
+              "with_pointing", "with_pointing", "without_pointing", "without_pointing",
+              "with_pointing", "with_pointing", "without_pointing", "without_pointing") 
+
+percentage = c(
+round((sum(na.omit(P_T1_total$Correction_Status == "Corrected"))/sum(D1_T1$Robot_Hand_Condition == "Pointing"))*100,digits=2), 
+               round((sum(na.omit(P_T1_total$Correction_Status == "Not_Corrected"))/sum(D1_T1$Robot_Hand_Condition == "Pointing"))*100,digits=2),
+               round((sum(na.omit(NP_T1_total$Correction_Status == "Corrected"))/sum(D1_T1$Robot_Hand_Condition == "Not_Pointing"))*100,digits=2),
+               round((sum(na.omit(NP_T1_total$Correction_Status == "Not_Corrected"))/sum(D1_T1$Robot_Hand_Condition == "Not_Pointing"))*100, digits=2),
+round((sum(na.omit(P_T2_total$Correction_Status == "Corrected"))/sum(D1_T2$Robot_Hand_Condition == "Pointing"))*100,digits=2), 
+               round((sum(na.omit(P_T2_total$Correction_Status == "Not_Corrected"))/sum(D1_T2$Robot_Hand_Condition == "Pointing"))*100,digits=2),
+               round((sum(na.omit(NP_T2_total$Correction_Status == "Corrected"))/sum(D1_T2$Robot_Hand_Condition == "Not_Pointing"))*100,digits=2),
+               round((sum(na.omit(NP_T2_total$Correction_Status == "Not_Corrected"))/sum(D1_T2$Robot_Hand_Condition == "Not_Pointing"))*100, digits=2),
+round((sum(na.omit(P_T3_total$Correction_Status == "Corrected"))/sum(D1_T3$Robot_Hand_Condition == "Pointing"))*100,digits=2), 
+               round((sum(na.omit(P_T3_total$Correction_Status == "Not_Corrected"))/sum(D1_T3$Robot_Hand_Condition == "Pointing"))*100,digits=2),
+               round((sum(na.omit(NP_T3_total$Correction_Status == "Corrected"))/sum(D1_T3$Robot_Hand_Condition == "Not_Pointing"))*100,digits=2),
+               round((sum(na.omit(NP_T3_total$Correction_Status == "Not_Corrected"))/sum(D1_T3$Robot_Hand_Condition == "Not_Pointing"))*100, digits=2),
+round((sum(na.omit(P_T4_total$Correction_Status == "Corrected"))/sum(D1_T4$Robot_Hand_Condition == "Pointing"))*100,digits=2), 
+               round((sum(na.omit(P_T4_total$Correction_Status == "Not_Corrected"))/sum(D1_T4$Robot_Hand_Condition == "Pointing"))*100,digits=2),
+               round((sum(na.omit(NP_T4_total$Correction_Status == "Corrected"))/sum(D1_T4$Robot_Hand_Condition == "Not_Pointing"))*100,digits=2),
+               round((sum(na.omit(NP_T4_total$Correction_Status == "Not_Corrected"))/sum(D1_T4$Robot_Hand_Condition == "Not_Pointing"))*100, digits=2))
+
+correction = c("2corrected", "1not_corrected", "2corrected", "1not_corrected",
+               "2corrected", "1not_corrected", "2corrected", "1not_corrected",
+               "2corrected", "1not_corrected", "2corrected", "1not_corrected",
+               "2corrected", "1not_corrected", "2corrected", "1not_corrected")
+
+dataf = data.frame(condition, percentage, correction, mistake) 
+dataf
+
+
+ggplot(dataf, aes(x=condition, y=percentage, fill=correction)) +
+  geom_bar(stat="identity", width = 0.7)+
+  geom_text(aes(label=percentage), size = 5, position="stack", vjust=2, color="white") +
+  labs(title="High Level Day 1",
+       x = "Robot's Hand Condition", y="Percentage")+
+  theme(plot.title = element_text( face="bold", size=20),
+        plot.subtitle = element_text( face="plain", size=18), legend.position="bottom",
+        axis.text.x = element_text(colour="grey20",size=16,hjust=.5,vjust=.5,face="plain"),
+        axis.text.y = element_text(colour="grey20",size=16,angle=0,hjust=1,vjust=0,face="plain"),  
+        axis.title.x = element_text(colour="grey20",size=18,angle=0,hjust=.5,vjust=0,face="bold"),
+        axis.title.y = element_text(colour="grey20",size=18,angle=90,hjust=.5,vjust=.5,face="bold"),
+        legend.title = element_text(colour="grey20",size=16,angle=0,hjust=.5,vjust=.5,face="bold"),
+        legend.text = element_text(colour="grey20",size=16,angle=0,hjust=.5,vjust=.5,face="plain"),
+        strip.text.x = element_text(size = 14, face="bold"))+
+        facet_wrap( ~ mistake)+
+        scale_fill_manual("Robot Hand Condition", values = c("red4", "springgreen4"), 
+                          labels=c("Not Corrected", "Corrected"))+
+        scale_x_discrete(labels=c("Without Pointing", "With Pointing"))
+
+
+```
+
+
+
+```{r, echo=FALSE}
+D1_pointing = subset(D1L, D1L$Robot_Hand_Condition %in% c("Pointing") )
+D1_not = subset(D1L, D1L$Robot_Hand_Condition %in% c("Not_Pointing"))
+D1_melt <- subset(D1L, D1L$Correction_Status %in% c("Corrected", "Not_Corrected"))
+D1_T1 <- subset(D1_melt, D1_melt$Mistake_Type %in% c("T1"))
+D1_T2 <- subset(D1_melt, D1_melt$Mistake_Type %in% c("T2"))
+D1_T3 <- subset(D1_melt, D1_melt$Mistake_Type %in% c("T3"))
+D1_T4 <- subset(D1_melt, D1_melt$Mistake_Type %in% c("T4"))
+
+
+
+P_T1_total <- subset(D1_T1, D1_T1$Robot_Hand_Condition == "Pointing")
+NP_T1_total <- subset(D1_T1, na.omit(D1_T1$Robot_Hand_Condition == "Not_Pointing"))
+P_T2_total <- subset(D1_T2, D1_T2$Robot_Hand_Condition == "Pointing")
+NP_T2_total <- subset(D1_T2, na.omit(D1_T2$Robot_Hand_Condition == "Not_Pointing"))
+P_T3_total <- subset(D1_T3, D1_T3$Robot_Hand_Condition == "Pointing")
+NP_T3_total <- subset(D1_T3, na.omit(D1_T3$Robot_Hand_Condition == "Not_Pointing"))
+P_T4_total <- subset(D1_T4, D1_T4$Robot_Hand_Condition == "Pointing")
+NP_T4_total <- subset(D1_T4, na.omit(D1_T4$Robot_Hand_Condition == "Not_Pointing"))
+
+P_C <- sum(na.omit(D1_pointing$Correction_Status == "Corrected"))
+P_NC <- sum(na.omit(D1_pointing$Correction_Status == "Not_Corrected"))
+NP_C <- sum(na.omit(D1_not$Correction_Status == "Corrected"))
+NP_NC <- sum(na.omit(D1_not$Correction_Status == "Not_Corrected"))
+
+Percentage_data<-( 
+  rbind(
+    c(P_C/P_total, P_NC/P_total), 
+    c(NP_C/NP_total, NP_NC/NP_total)
+  )
+)
+
+mistake = c("T1", "T1", "T1", "T1", "T2", "T2", "T2", "T2", "T3", "T3", "T3", "T3", "T4", "T4", "T4", "T4") 
+
+condition = c("with_pointing", "with_pointing", "without_pointing", "without_pointing",
+              "with_pointing", "with_pointing", "without_pointing", "without_pointing",
+              "with_pointing", "with_pointing", "without_pointing", "without_pointing",
+              "with_pointing", "with_pointing", "without_pointing", "without_pointing") 
+
+percentage = c(
+round((sum(na.omit(P_T1_total$Correction_Status == "Corrected"))/sum(D1_T1$Robot_Hand_Condition == "Pointing"))*100,digits=2), 
+               round((sum(na.omit(P_T1_total$Correction_Status == "Not_Corrected"))/sum(D1_T1$Robot_Hand_Condition == "Pointing"))*100,digits=2),
+               round((sum(na.omit(NP_T1_total$Correction_Status == "Corrected"))/sum(D1_T1$Robot_Hand_Condition == "Not_Pointing"))*100,digits=2),
+               round((sum(na.omit(NP_T1_total$Correction_Status == "Not_Corrected"))/sum(D1_T1$Robot_Hand_Condition == "Not_Pointing"))*100, digits=2),
+round((sum(na.omit(P_T2_total$Correction_Status == "Corrected"))/sum(D1_T2$Robot_Hand_Condition == "Pointing"))*100,digits=2), 
+               round((sum(na.omit(P_T2_total$Correction_Status == "Not_Corrected"))/sum(D1_T2$Robot_Hand_Condition == "Pointing"))*100,digits=2),
+               round((sum(na.omit(NP_T2_total$Correction_Status == "Corrected"))/sum(D1_T2$Robot_Hand_Condition == "Not_Pointing"))*100,digits=2),
+               round((sum(na.omit(NP_T2_total$Correction_Status == "Not_Corrected"))/sum(D1_T2$Robot_Hand_Condition == "Not_Pointing"))*100, digits=2),
+round((sum(na.omit(P_T3_total$Correction_Status == "Corrected"))/sum(D1_T3$Robot_Hand_Condition == "Pointing"))*100,digits=2), 
+               round((sum(na.omit(P_T3_total$Correction_Status == "Not_Corrected"))/sum(D1_T3$Robot_Hand_Condition == "Pointing"))*100,digits=2),
+               round((sum(na.omit(NP_T3_total$Correction_Status == "Corrected"))/sum(D1_T3$Robot_Hand_Condition == "Not_Pointing"))*100,digits=2),
+               round((sum(na.omit(NP_T3_total$Correction_Status == "Not_Corrected"))/sum(D1_T3$Robot_Hand_Condition == "Not_Pointing"))*100, digits=2),
+round((sum(na.omit(P_T4_total$Correction_Status == "Corrected"))/sum(D1_T4$Robot_Hand_Condition == "Pointing"))*100,digits=2), 
+               round((sum(na.omit(P_T4_total$Correction_Status == "Not_Corrected"))/sum(D1_T4$Robot_Hand_Condition == "Pointing"))*100,digits=2),
+               round((sum(na.omit(NP_T4_total$Correction_Status == "Corrected"))/sum(D1_T4$Robot_Hand_Condition == "Not_Pointing"))*100,digits=2),
+               round((sum(na.omit(NP_T4_total$Correction_Status == "Not_Corrected"))/sum(D1_T4$Robot_Hand_Condition == "Not_Pointing"))*100, digits=2))
+
+correction = c("2corrected", "1not_corrected", "2corrected", "1not_corrected",
+               "2corrected", "1not_corrected", "2corrected", "1not_corrected",
+               "2corrected", "1not_corrected", "2corrected", "1not_corrected",
+               "2corrected", "1not_corrected", "2corrected", "1not_corrected")
+
+dataf = data.frame(condition, percentage, correction, mistake) 
+dataf
+
+
+ggplot(dataf, aes(x=condition, y=percentage, fill=correction)) +
+  geom_bar(stat="identity", width = 0.7)+
+  geom_text(aes(label=percentage), size = 5, position="stack", vjust=2, color="white") +
+  labs(title="Low Level Day 1",
+       x = "Robot's Hand Condition", y="Percentage")+
+  theme(plot.title = element_text( face="bold", size=20),
+        plot.subtitle = element_text( face="plain", size=18), legend.position="bottom",
+        axis.text.x = element_text(colour="grey20",size=16,hjust=.5,vjust=.5,face="plain"),
+        axis.text.y = element_text(colour="grey20",size=16,angle=0,hjust=1,vjust=0,face="plain"),  
+        axis.title.x = element_text(colour="grey20",size=18,angle=0,hjust=.5,vjust=0,face="bold"),
+        axis.title.y = element_text(colour="grey20",size=18,angle=90,hjust=.5,vjust=.5,face="bold"),
+        legend.title = element_text(colour="grey20",size=16,angle=0,hjust=.5,vjust=.5,face="bold"),
+        legend.text = element_text(colour="grey20",size=16,angle=0,hjust=.5,vjust=.5,face="plain"),
+        strip.text.x = element_text(size = 14, face="bold"))+
+        facet_wrap( ~ mistake)+
+        scale_fill_manual("Robot Hand Condition", values = c("red4", "springgreen4"), 
+                          labels=c("Not Corrected", "Corrected"))+
+        scale_x_discrete(labels=c("Without Pointing", "With Pointing"))
+
+
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
