@@ -128,5 +128,39 @@ facet(p, facet.by = "Mistake_Type")
 
 #############################################################3
 # Aggreation of mistake status by kids
-df_kids = with(df, table(Child_ID,Mistake_Type))
+df_kids = with(df, table(Child_ID,Mistake_Type, Correction_Status, Robot_Hand_Condition, Book_Level))
 df_kids = data.frame(df_kids)
+df_kids
+ggbarplot(df_kids, x = "Robot_Hand_Condition", y = "Freq", add = "mean_se",
+           fill="Correction_Status", palette = "aaas", 
+          position = position_dodge(0.8))+
+  stat_compare_means(aes(group = Robot_Hand_Condition), label = "p.signif", label.y = 0.9)
+ggbarplot(df_kids, x = "Correction_Status", y = "Freq", add = "mean_se",
+          fill="Robot_Hand_Condition", palette = "aaas", 
+          position = position_dodge(0.8))+
+  stat_compare_means(aes(group = Robot_Hand_Condition), label = "p.signif", label.y = 0.9)
+
+ggbarplot(df_kids, x = "Robot_Hand_Condition", y = "Freq", add = "mean_se",
+           fill="Mistake_Type", palette = "aaas", 
+          position = position_dodge(0.8))+
+  stat_compare_means(aes(group = Robot_Hand_Condition), label = "p.signif", label.y = 0.9)
+
+ggbarplot(df_kids, x = "Robot_Hand_Condition", y = "Freq", add = "mean_se",
+          fill="Mistake_Type", palette = "aaas", 
+          position = position_dodge(0.8))+
+  stat_compare_means(aes(group = Robot_Hand_Condition), label = "p.signif", label.y = 0.9)
+
+ggbarplot(df_kids, x = "Mistake_Type", y = "Freq", add = "mean_se",
+          fill="Robot_Hand_Condition", palette = "aaas", 
+          position = position_dodge(0.8))+
+  stat_compare_means(aes(group = Robot_Hand_Condition), label = "p.signif", label.y = 0.9)
+
+ggbarplot(df_kids, x = "Book_Level", y = "Freq", add = "mean_se",
+          fill="Robot_Hand_Condition", palette = "aaas", 
+          position = position_dodge(0.8))+
+  stat_compare_means(aes(group = Robot_Hand_Condition), label = "p.signif", label.y = 0.9)
+
+res <- wilcox.test(Freq ~ Robot_Hand_Condition, data = df_kids, paired = TRUE)
+res
+res = table(df_kids$Robot_Hand_Condition, df_kids$Correction_Status) 
+chisq.test(res) 
