@@ -1,6 +1,9 @@
+library(magrittr)
+library(ggplot2)
 library(readr)
 library(ggpubr)
 library(plyr)
+
 
 ########################### Functions
 ## Gives count, mean, standard deviation, standard error of the mean, and confidence interval (default 95%).
@@ -50,7 +53,7 @@ summarySE <- function(data=NULL, measurevar, groupvars=NULL, na.rm=FALSE,
 ################ DATA PREP
 day1_df <-
   read_csv(
-    "Documents/CODING/DATA_ANALYSIS/CoReader/analysis_coreader/all_correction_status_Day1_within.csv",
+    "/home/yadollah/Dropbox/2.PhD/Experiment_Geneve/Analysis/Analysis/all_correction_status_Day1_within.csv",
     col_types = cols(
       Book_Level = col_factor(levels = c("High", "Low")),
       Correction_Status = col_factor(levels = c("Corrected",
@@ -66,7 +69,7 @@ day1_df <-
 
 day2_df <-
   read_csv(
-    "Documents/CODING/DATA_ANALYSIS/CoReader/analysis_coreader/all_correction_status_Day2_within.csv",
+    "/home/yadollah/Dropbox/2.PhD/Experiment_Geneve/Analysis/Analysis/all_correction_status_Day2_within.csv",
     col_types = cols(
       Book_Level = col_factor(levels = c("High", "Low")),
       Correction_Status = col_factor(levels = c("Corrected",
@@ -130,3 +133,4 @@ facet(p, facet.by = "Mistake_Type")
 # Aggreation of mistake status by kids
 df_kids = with(df, table(Child_ID,Mistake_Type))
 df_kids = data.frame(df_kids)
+
