@@ -118,12 +118,28 @@ df_type = data.frame(df_type)
 p = ggbarplot(df_type, x = "Mistake_Type", y = "Freq", fill = "Correction_Status",  palette = c("#00AFBB", "#E7B800"))
 facet(p, facet.by = "Book_Level")
 
+### Frequency of correction status by type 2 of mistakes and book level
+df_type = with(df, table(Correction_Status,Mistake_Type_2, Book_Level))
+df_type = prop.table(df_type, margin = 3)*100
+df_type
+df_type = data.frame(df_type)
+p = ggbarplot(df_type, x = "Mistake_Type_2", y = "Freq", fill = "Correction_Status",  palette = c("#00AFBB", "#E7B800"))
+facet(p, facet.by = "Book_Level")
+
 ### Frequency of correction status by type of mistakes and book level
 df_type = with(df, table(Mistake_Type,Correction_Status, Book_Level))
 df_type = prop.table(df_type, margin = 3)*100
 df_type = data.frame(df_type)
 p = ggbarplot(df_type, x = "Book_Level", y = "Freq", fill = "Correction_Status",  palette = c("#00AFBB", "#E7B800"))
 facet(p, facet.by = "Mistake_Type")
+
+### Frequency of correction status by type 2 of mistakes and book level
+df_type = with(df, table(Mistake_Type_2,Correction_Status, Book_Level))
+df_type = prop.table(df_type, margin = 3)*100
+df_type = data.frame(df_type)
+p = ggbarplot(df_type, x = "Book_Level", y = "Freq", fill = "Correction_Status",  palette = c("#00AFBB", "#E7B800"))
+facet(p, facet.by = "Mistake_Type_2")
+
 
 ### Frequency of correction status by type of mistakes and hand condition
 df_type = with(df, table(Correction_Status,Mistake_Type, Robot_Hand_Condition))
@@ -132,6 +148,15 @@ df_type
 df_type = data.frame(df_type)
 p = ggbarplot(df_type, x = "Mistake_Type", y = "Freq", fill = "Correction_Status",  palette = c("#00AFBB", "#E7B800"))
 facet(p, facet.by = "Robot_Hand_Condition")
+
+### Frequency of correction status by type of mistakes and hand condition
+df_type = with(df, table(Correction_Status,Mistake_Type_2, Robot_Hand_Condition))
+df_type = prop.table(df_type, margin = 3)*100
+df_type
+df_type = data.frame(df_type)
+p = ggbarplot(df_type, x = "Mistake_Type_2", y = "Freq", fill = "Correction_Status",  palette = c("#00AFBB", "#E7B800"))
+facet(p, facet.by = "Robot_Hand_Condition")
+
 
 ### Frequency of correction status by type of mistakes and hand condition
 df_type = with(df, table(Mistake_Type,Correction_Status, Robot_Hand_Condition))
@@ -221,4 +246,57 @@ res = table(df_t4$Robot_Hand_Condition, df_t4$Correction_Status)
 res
 chisq.test(res) 
 
-##### Test pointing effect according to level for each 
+##### Test pointing effect according to Mistake_Type_2
+###### S1
+df_s1 = subset(df,df$Mistake_Type_2 == "S1")
+res = table(df_s1$Robot_Hand_Condition, df_s1$Correction_Status) 
+res = prop.table(res,1)*100
+res
+chisq.test(res) 
+###### S2
+df_s2 = subset(df,df$Mistake_Type_2 == "S2")
+res = table(df_s2$Robot_Hand_Condition, df_s2$Correction_Status) 
+res = prop.table(res,1)*100
+chisq.test(res) 
+###### S3
+df_s3 = subset(df,df$Mistake_Type_2 == "S3")
+res = table(df_s3$Robot_Hand_Condition, df_s3$Correction_Status) 
+res = prop.table(res,1)*100
+chisq.test(res) 
+
+##### Test pointing effect according to Mistake_Type_2 
+######### Low
+###### S1 and Low
+df_s1 = subset(df,df$Mistake_Type_2 == "S1" & df$Book_Level == "Low")
+res = table(df_s1$Robot_Hand_Condition, df_s1$Correction_Status) 
+res = prop.table(res,1)*100
+res
+chisq.test(res) 
+###### S2 and Low
+df_s2 = subset(df,df$Mistake_Type_2 == "S2" & df$Book_Level == "Low")
+res = table(df_s2$Robot_Hand_Condition, df_s2$Correction_Status) 
+res = prop.table(res,1)*100
+chisq.test(res) 
+###### S3 and Low
+df_s3 = subset(df,df$Mistake_Type_2 == "S3" & df$Book_Level == "Low")
+res = table(df_s3$Robot_Hand_Condition, df_s3$Correction_Status) 
+res = prop.table(res,1)*100
+chisq.test(res) 
+
+######### High
+###### S1 and High
+df_s1 = subset(df,df$Mistake_Type_2 == "S1" & df$Book_Level == "High")
+res = table(df_s1$Robot_Hand_Condition, df_s1$Correction_Status) 
+res = prop.table(res,1)*100
+res
+chisq.test(res) 
+###### S2 and Low
+df_s2 = subset(df,df$Mistake_Type_2 == "S2" & df$Book_Level == "High")
+res = table(df_s2$Robot_Hand_Condition, df_s2$Correction_Status) 
+res = prop.table(res,1)*100
+chisq.test(res) 
+###### S3 and Low
+df_s3 = subset(df,df$Mistake_Type_2 == "S3" & df$Book_Level == "High")
+res = table(df_s3$Robot_Hand_Condition, df_s3$Correction_Status) 
+res = prop.table(res,1)*100
+chisq.test(res) 
