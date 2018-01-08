@@ -89,6 +89,21 @@ df <- rbind(day1_df,day2_df)
 gghistogram(df, x = "Mistake_Order", fill = "Correction_Status",  palette = c("#00AFBB", "#E7B800"),
             add = "mean", rug = TRUE)
 
+### Frequency of correction status by hand condition
+df_type = with(df, table(Correction_Status, Robot_Hand_Condition))
+df_type = prop.table(df_type, margin = 2)*100
+df_type = data.frame(df_type)
+p = ggbarplot(df_type, x = "Robot_Hand_Condition", y = "Freq", fill = "Correction_Status",  palette = c("#00AFBB", "#E7B800"))
+p
+
+### Frequency of correction status by hand condition and book_level
+df_type = with(df, table(Correction_Status, Robot_Hand_Condition, Book_Level))
+df_type = prop.table(df_type, margin = 3)*100
+df_type = data.frame(df_type)
+p = ggbarplot(df_type, x = "Robot_Hand_Condition", y = "Freq", fill = "Correction_Status",  palette = c("#00AFBB", "#E7B800"))
+facet(p, facet.by = "Book_Level")
+
+
 ### Frequency of correction status by type of mistakes
 df_type = with(df, table(Correction_Status,Mistake_Type))
 df_type = prop.table(df_type, margin = 2)*100
@@ -131,6 +146,8 @@ facet(p, facet.by = "Mistake_Type")
 df_kids = with(df, table(Child_ID,Mistake_Type, Correction_Status, Robot_Hand_Condition, Book_Level))
 df_kids = data.frame(df_kids)
 df_kids
+df_kids_corrected =  subset(df_kids, df_kids$Correction_Status == "Corrected")
+#df_kids = df_kids_corrected
 ggbarplot(df_kids, x = "Robot_Hand_Condition", y = "Freq", add = "mean_se",
            fill="Correction_Status", palette = "aaas", 
           position = position_dodge(0.8))+
@@ -151,16 +168,57 @@ ggbarplot(df_kids, x = "Robot_Hand_Condition", y = "Freq", add = "mean_se",
   stat_compare_means(aes(group = Robot_Hand_Condition), label = "p.signif", label.y = 0.9)
 
 ggbarplot(df_kids, x = "Mistake_Type", y = "Freq", add = "mean_se",
-          fill="Robot_Hand_Condition", palette = "aaas", 
+          fill="Robot_Hand_Condition", palette = "aaas",
           position = position_dodge(0.8))+
   stat_compare_means(aes(group = Robot_Hand_Condition), label = "p.signif", label.y = 0.9)
 
+df_kids = df_kids_corrected
 ggbarplot(df_kids, x = "Book_Level", y = "Freq", add = "mean_se",
           fill="Robot_Hand_Condition", palette = "aaas", 
           position = position_dodge(0.8))+
   stat_compare_means(aes(group = Robot_Hand_Condition), label = "p.signif", label.y = 0.9)
 
-res <- wilcox.test(Freq ~ Robot_Hand_Condition, data = df_kids, paired = TRUE)
+df_kids_corrected =  subset(df_kids, df_kids$Correction_Status == "Corrected")
+ggbarplot(df_kids_corrected, x = "Book_Level", y = "Freq", add = "mean_ci",
+          fill="Book_Level", palette = "aaas", 
+          position = position_dodge(0.8))+
+  stat_compare_means(aes(group = Book_Level), label = "p.signif", label.y = 0.9)
+
+#################################33 STAT TEST
+#### Test pointing effect on all children
+res = table(df$Robot_Hand_Condition, df$Correction_Status) 
 res
-res = table(df_kids$Robot_Hand_Condition, df_kids$Correction_Status) 
 chisq.test(res) 
+#### Test pointing effect on low level kids
+df_low = subset(df,df$Book_Level == "Low")
+res = table(df_low$Robot_Hand_Condition, df_low$Correction_Status) 
+res
+chisq.test(res) 
+#### Test pointing effect on high level kids
+df_high = subset(df,df$Book_Level == "High")
+res = table(df_high$Robot_Hand_Condition, df_high$Correction_Status) 
+res
+chisq.test(res) 
+#### Test pointing effect for each type of mistakes
+###### T1
+df_t1 = subset(df,df$Mistake_Type == "T1")
+res = table(df_t1$Robot_Hand_Condition, df_t1$Correction_Status) 
+res
+chisq.test(res) 
+###### T2
+df_t2 = subset(df,df$Mistake_Type == "T2")
+res = table(df_t2$Robot_Hand_Condition, df_t2$Correction_Status) 
+res
+chisq.test(res) 
+###### T3
+df_t3 = subset(df,df$Mistake_Type == "T3")
+res = table(df_t3$Robot_Hand_Condition, df_t3$Correction_Status) 
+res
+chisq.test(res) 
+###### T4
+df_t4 = subset(df,df$Mistake_Type == "T4")
+res = table(df_t4$Robot_Hand_Condition, df_t4$Correction_Status) 
+res
+chisq.test(res) 
+
+##### Test pointing effect according to level for each 
