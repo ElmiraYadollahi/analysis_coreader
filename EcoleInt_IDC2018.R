@@ -48,9 +48,11 @@ summarySE <- function(data=NULL, measurevar, groupvars=NULL, na.rm=FALSE,
 ##########################################################################
 
 ################ DATA PREP
+setwd("/home/yadollah/Dropbox/2.PhD/Experiment_Geneve/Analysis/Categorizaton/")
+
 day1_df <-
   read_csv(
-    "Documents/CODING/DATA_ANALYSIS/CoReader/analysis_coreader/all_correction_status_Day1_within.csv",
+    "all_correction_status_Day1_within.csv",
     col_types = cols(
       Book_Level = col_factor(levels = c("High", "Low")),
       Correction_Status = col_factor(levels = c("Corrected",
@@ -66,7 +68,7 @@ day1_df <-
 
 day2_df <-
   read_csv(
-    "Documents/CODING/DATA_ANALYSIS/CoReader/analysis_coreader/all_correction_status_Day2_within.csv",
+    "all_correction_status_Day2_within.csv",
     col_types = cols(
       Book_Level = col_factor(levels = c("High", "Low")),
       Correction_Status = col_factor(levels = c("Corrected",
@@ -85,6 +87,20 @@ df <- rbind(day1_df,day2_df)
 ##########################################################################
 
 ##########################################################################
+
+### Frequency of correction status by type 2 of mistakes and book level
+df_type = with(df, table(Correction_Status,Mistake_Type_2, Book_Level))
+df_type = prop.table(df_type, margin = 3)*100
+df_type
+df_type = data.frame(df_type)
+p = ggbarplot(df_type, x = "Mistake_Type_2", y = "Freq", fill = "Correction_Status",  palette = c("#00AFBB", "#E7B800"))
+facet(p, facet.by = "Book_Level")
+
+
+
+
+
+############################################################################################
 ### checking that the number of correctly identified mistakes doesnt discrease with time
 gghistogram(df, x = "Mistake_Order", fill = "Correction_Status",  palette = c("#00AFBB", "#E7B800"),
             add = "mean", rug = TRUE)

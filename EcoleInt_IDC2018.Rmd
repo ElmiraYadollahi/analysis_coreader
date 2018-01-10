@@ -39,6 +39,7 @@ summarySE <- function(data=NULL, measurevar, groupvars=NULL, na.rm=FALSE,
                      sd   = sd     (xx[[col]], na.rm=na.rm)
                    )
                  },
+                 
                  measurevar
   )
   
@@ -89,17 +90,24 @@ day2_df <-
     )
   )
 
-
+day2_df = subset(day2_df, !(day2_df$Correct_Word %in% c("properly", "right", "run", "ran", "fight")), na.rm=T)
 df <- rbind(day1_df,day2_df)
+
 ```
 ### Correct per day
 ```{r}
+
 res = table(df$Exp_Day, df$Correction_Status) 
 res = prop.table(res,1)*100
 res
 chisq.test(res) 
 res = data.frame(res)
-p = ggbarplot(res, x = "Var1", y = "Freq", fill = "Var2", palette = "jco")
+res$Var2 <- as.character(res$Var2)
+res$Var2 <- factor(res$Var2, levels=c("Not_Corrected", "Corrected"))
+p = ggbarplot(res, x = "Var1", y = "Freq", 
+              fill = "Var2", color = "Var2", palette = "Paired",
+              xlab = "Experiment Day", ylab = "Correction Percentage")
+              #label = TRUE, lab.col = "white", lab.pos = "in")
 p
 ```
 There is an effect of the day on the correction with higher number of corrections in D1! :(
@@ -111,7 +119,10 @@ res = prop.table(res,1)*100
 res
 chisq.test(res) 
 res = data.frame(res)
-p = ggbarplot(res, x = "Var1", y = "Freq", fill = "Var2", palette = "jco")
+res$Var2 <- as.character(res$Var2)
+res$Var2 <- factor(res$Var2, levels=c("Not_Corrected", "Corrected"))
+p = ggbarplot(res, x = "Var1", y = "Freq", 
+              fill = "Var2", color = "Var2", palette = "Paired")
 p
 
 ```
@@ -121,10 +132,131 @@ res = prop.table(res,1)*100
 res
 chisq.test(res) 
 res = data.frame(res)
-p = ggbarplot(res, x = "Var1", y = "Freq", fill = "Var2", palette = "jco")
+res$Var2 <- as.character(res$Var2)
+res$Var2 <- factor(res$Var2, levels=c("Not_Corrected", "Corrected"))
+p = ggbarplot(res, x = "Var1", y = "Freq", 
+              fill = "Var2", color = "Var2", palette = "Paired",
+              xlab = "Type of Mistake", ylab = "Correction Percentage")
 p
 
 ```
+```{r}
+df_point = subset(df,df$Robot_Hand_Condition == "Pointing")
+res = table(df_point$Mistake_Type_2, df_point$Correction_Status) 
+res = prop.table(res,1)*100
+res
+
+df_not = subset(df,df$Robot_Hand_Condition == "Not_Pointing")
+res2 = table(df_not$Mistake_Type_2, df_not$Correction_Status) 
+res2 = prop.table(res2,1)*100
+
+chisq.test(res) 
+chisq.test(res2) 
+res = data.frame(res)
+res["Hand"] <- "Pointing"
+res2 = data.frame(res2)
+res2["Hand"] <- "Not_Pointing"
+res3 <- rbind(res,res2)
+res3$Var2 <- as.character(res3$Var2)
+res3$Var2 <- factor(res3$Var2, levels=c("Not_Corrected", "Corrected"))
+p = ggbarplot(res3, x = "Var1", y = "Freq", 
+              fill = "Var2", color = "Var2", palette = "Paired",
+              xlab = "Type of Mistake", ylab = "Correction Percentage")
+facet(p, facet.by="Hand")
+
+
+```
+
+```{r}
+df_low = subset(df,df$Book_Level == "Low")
+df_point = subset(df_low,df$Robot_Hand_Condition == "Pointing")
+res = table(df_point$Mistake_Type_2, df_point$Correction_Status) 
+res = prop.table(res,1)*100
+res
+
+df_not = subset(df,df$Robot_Hand_Condition == "Not_Pointing")
+res2 = table(df_not$Mistake_Type_2, df_not$Correction_Status) 
+res2 = prop.table(res2,1)*100
+
+chisq.test(res) 
+chisq.test(res2) 
+res = data.frame(res)
+res["Hand"] <- "Pointing"
+res2 = data.frame(res2)
+res2["Hand"] <- "Not_Pointing"
+res3 <- rbind(res,res2)
+res3$Var2 <- as.character(res3$Var2)
+res3$Var2 <- factor(res3$Var2, levels=c("Not_Corrected", "Corrected"))
+p = ggbarplot(res3, x = "Var1", y = "Freq", 
+              fill = "Var2", color = "Var2", palette = "Paired",
+              xlab = "Type of Mistake", ylab = "Correction Percentage")
+facet(p, facet.by="Hand")
+
+
+```
+
+```{r}
+df_high = subset(df,df$Book_Level == "High")
+df_point = subset(df_high,df$Robot_Hand_Condition == "Pointing")
+res = table(df_point$Mistake_Type_2, df_point$Correction_Status) 
+res = prop.table(res,1)*100
+res
+
+df_not = subset(df,df$Robot_Hand_Condition == "Not_Pointing")
+res2 = table(df_not$Mistake_Type_2, df_not$Correction_Status) 
+res2 = prop.table(res2,1)*100
+
+chisq.test(res) 
+chisq.test(res2) 
+res = data.frame(res)
+res["Hand"] <- "Pointing"
+res2 = data.frame(res2)
+res2["Hand"] <- "Not_Pointing"
+res3 <- rbind(res,res2)
+res3$Var2 <- as.character(res3$Var2)
+res3$Var2 <- factor(res3$Var2, levels=c("Not_Corrected", "Corrected"))
+p = ggbarplot(res3, x = "Var1", y = "Freq", 
+              fill = "Var2", color = "Var2", palette = "Paired",
+              xlab = "Type of Mistake", ylab = "Correction Percentage")
+facet(p, facet.by="Hand")
+
+
+```
+
+# Low
+```{r}
+df_low = subset(df,df$Book_Level == "Low")
+res = table(df_low$Mistake_Type_2, df_low$Correction_Status) 
+res = prop.table(res,1)*100
+res
+chisq.test(res) 
+res = data.frame(res)
+res$Var2 <- as.character(res$Var2)
+res$Var2 <- factor(res$Var2, levels=c("Not_Corrected", "Corrected"))
+p = ggbarplot(res, x = "Var1", y = "Freq", 
+              fill = "Var2", color = "Var2", palette = "Paired",
+              xlab = "Type of Mistake", ylab = "Correction Percentage")
+p
+
+```
+
+# High
+```{r}
+df_low = subset(df,df$Book_Level == "High")
+res = table(df_low$Mistake_Type_2, df_low$Correction_Status) 
+res = prop.table(res,1)*100
+res
+chisq.test(res) 
+res = data.frame(res)
+res$Var2 <- as.character(res$Var2)
+res$Var2 <- factor(res$Var2, levels=c("Not_Corrected", "Corrected"))
+p = ggbarplot(res, x = "Var1", y = "Freq", 
+              fill = "Var2", color = "Var2", palette = "Paired",
+              xlab = "Type of Mistake", ylab = "Correction Percentage")
+p
+
+```
+
 
 ### Correct per mistake order
 ```{r}
@@ -133,7 +265,11 @@ res = prop.table(res,1)*100
 res
 chisq.test(res) 
 res = data.frame(res)
-p = ggbarplot(res, x = "Var1", y = "Freq", fill = "Var2", palette = "jco")
+res$Var2 <- as.character(res$Var2)
+res$Var2 <- factor(res$Var2, levels=c("Not_Corrected", "Corrected"))
+p = ggbarplot(res, x = "Var1", y = "Freq", 
+              fill = "Var2", color = "Var2", palette = "Paired",
+              xlab = "Mistake Order", ylab = "Correction Percentage")
 p
 
 ```
@@ -145,7 +281,11 @@ res = prop.table(res,1)*100
 res
 chisq.test(res) 
 res = data.frame(res)
-p = ggbarplot(res, x = "Var1", y = "Freq", fill = "Var2", palette = "jco")
+res$Var2 <- as.character(res$Var2)
+res$Var2 <- factor(res$Var2, levels=c("Not_Corrected", "Corrected"))
+p = ggbarplot(res, x = "Var1", y = "Freq", 
+              fill = "Var2", color = "Var2", palette = "Paired",
+              xlab = "Book Level", ylab = "Correction Percentage")
 p
 ```
 
@@ -157,8 +297,12 @@ res = prop.table(res,1)*100
 res
 chisq.test(res) 
 res = data.frame(res)
-p = ggbarplot(res, x = "Var1", y = "Freq", fill = "Var2", palette = "jco")
-p
+res$Var2 <- as.character(res$Var2)
+res$Var2 <- factor(res$Var2, levels=c("Not_Corrected", "Corrected"))
+p = ggbarplot(res, x = "Var1", y = "Freq", 
+              fill = "Var2", color = "Var2", palette = "Paired",
+              xlab = "Robot Hand Condition", ylab = "Correction Percentage")
+p 
 ```
 ## Test pointing effect on low level kids
 ```{r}
@@ -168,7 +312,11 @@ res = prop.table(res,1)*100
 res
 chisq.test(res) 
 res = data.frame(res)
-p = ggbarplot(res, x = "Var1", y = "Freq", fill = "Var2", palette = "jco")
+res$Var2 <- as.character(res$Var2)
+res$Var2 <- factor(res$Var2, levels=c("Not_Corrected", "Corrected"))
+p = ggbarplot(res, x = "Var1", y = "Freq", 
+              fill = "Var2", color = "Var2", palette = "Paired",
+              xlab = "Robot Hand Condition", ylab = "Correction Percentage")
 p
 ```
 
@@ -180,7 +328,11 @@ res = prop.table(res,1)*100
 res
 chisq.test(res) 
 res = data.frame(res)
-p = ggbarplot(res, x = "Var1", y = "Freq", fill = "Var2", palette = "jco")
+res$Var2 <- as.character(res$Var2)
+res$Var2 <- factor(res$Var2, levels=c("Not_Corrected", "Corrected"))
+p = ggbarplot(res, x = "Var1", y = "Freq", 
+              fill = "Var2", color = "Var2", palette = "Paired",
+              xlab = "Robot Hand Condition", ylab = "Correction Percentage")
 p
 ```
 #### Test pointing effect for each type of mistakes
@@ -212,73 +364,73 @@ res
 chisq.test(res) 
 ```
 ##### Test pointing effect according to Mistake_Type_2
-###### S1
+###### Type-1
 ```{r}
-df_s1 = subset(df,df$Mistake_Type_2 == "S1")
-res = table(df_s1$Robot_Hand_Condition, df_s1$Correction_Status) 
+df_type1 = subset(df,df$Mistake_Type_2 == "Type-1")
+res = table(df_type1$Robot_Hand_Condition, df_type1$Correction_Status) 
 res = prop.table(res,1)*100
 res
 chisq.test(res) 
 ```
 ###### S2
 ```{r}
-df_s2 = subset(df,df$Mistake_Type_2 == "S2")
-res = table(df_s2$Robot_Hand_Condition, df_s2$Correction_Status) 
+df_type3 = subset(df,df$Mistake_Type_2 == "Type-3")
+res = table(df_type3$Robot_Hand_Condition, df_type3$Correction_Status) 
 res = prop.table(res,1)*100
 chisq.test(res) 
 ```
-###### S3
+###### Type-2
 ```{r}
-df_s3 = subset(df,df$Mistake_Type_2 == "S3")
-res = table(df_s3$Robot_Hand_Condition, df_s3$Correction_Status) 
+df_type2 = subset(df,df$Mistake_Type_2 == "Type-2")
+res = table(df_type2$Robot_Hand_Condition, df_type2$Correction_Status) 
 res = prop.table(res,1)*100
 chisq.test(res) 
 ```
 
 ##### Test pointing effect according to Mistake_Type_2 
 ###### Low
-### S1 and Low
+### Typ1-1 and Low
 ```{r}
-df_s1 = subset(df,df$Mistake_Type_2 == "S1" & df$Book_Level == "Low")
-res = table(df_s1$Robot_Hand_Condition, df_s1$Correction_Status) 
+df_type1 = subset(df,df$Mistake_Type_2 == "Typ1-1" & df$Book_Level == "Low")
+res = table(df_type1$Robot_Hand_Condition, df_type1$Correction_Status) 
 res = prop.table(res,1)*100
 res
 chisq.test(res) 
 ```
-### S2 and Low
+### Type-3 and Low
 ```{r}
-df_s2 = subset(df,df$Mistake_Type_2 == "S2" & df$Book_Level == "Low")
-res = table(df_s2$Robot_Hand_Condition, df_s2$Correction_Status) 
+df_type3 = subset(df,df$Mistake_Type_2 == "Type-3" & df$Book_Level == "Low")
+res = table(df_type3$Robot_Hand_Condition, df_type3$Correction_Status) 
 res = prop.table(res,1)*100
 chisq.test(res) 
 ```
-### S3 and Low
+### Type-2 and Low
 ```{r}
-df_s3 = subset(df,df$Mistake_Type_2 == "S3" & df$Book_Level == "Low")
-res = table(df_s3$Robot_Hand_Condition, df_s3$Correction_Status) 
+df_type2 = subset(df,df$Mistake_Type_2 == "Type-2" & df$Book_Level == "Low")
+res = table(df_type2$Robot_Hand_Condition, df_type2$Correction_Status) 
 res = prop.table(res,1)*100
 chisq.test(res) 
 ```
 ###### High
-### S1 and High
+### Typ1-1 and High
 ```{r}
-df_s1 = subset(df,df$Mistake_Type_2 == "S1" & df$Book_Level == "High")
-res = table(df_s1$Robot_Hand_Condition, df_s1$Correction_Status) 
+df_type1 = subset(df,df$Mistake_Type_2 == "Typ1-1" & df$Book_Level == "High")
+res = table(df_type1$Robot_Hand_Condition, df_type1$Correction_Status) 
 res = prop.table(res,1)*100
 res
 chisq.test(res)
 ```
-### S2 and High
+### Type-3 and High
 ```{r}
-df_s2 = subset(df,df$Mistake_Type_2 == "S2" & df$Book_Level == "High")
-res = table(df_s2$Robot_Hand_Condition, df_s2$Correction_Status) 
+df_type3 = subset(df,df$Mistake_Type_2 == "Type-3" & df$Book_Level == "High")
+res = table(df_type3$Robot_Hand_Condition, df_type3$Correction_Status) 
 res = prop.table(res,1)*100
 chisq.test(res) 
 ```
-### S3 and High
+### Type-2 and High
 ```{r}
-df_s3 = subset(df,df$Mistake_Type_2 == "S3" & df$Book_Level == "High")
-res = table(df_s3$Robot_Hand_Condition, df_s3$Correction_Status) 
+df_type2 = subset(df,df$Mistake_Type_2 == "Type-2" & df$Book_Level == "High")
+res = table(df_type2$Robot_Hand_Condition, df_type2$Correction_Status) 
 res = prop.table(res,1)*100
 chisq.test(res) 
 ```
